@@ -73,24 +73,26 @@ export function AlgoSection() {
 
   return (
     <Card className="p-0 bg-transparent border-none">
-      <CardHeader className="flex items-center text-white gap-4 space-y-0 sm:flex-row p-0">
-        <div className="grid flex-1 gap-1">
-          <CardTitle className="text-2xl">Algo Main</CardTitle>
-          <CardDescription className="text-[#9568ff] font-bold">{formatUpdateTime(updateTime)}</CardDescription>
+      <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center text-white gap-4 space-y-0 p-0 lg:p-0">
+        <div className="grid flex-1 gap-1 w-full lg:w-auto">
+          <CardTitle className="text-xl lg:text-2xl">Algo Main</CardTitle>
+          <CardDescription className="text-[#9568ff] font-bold text-sm lg:text-base">{formatUpdateTime(updateTime)}</CardDescription>
         </div>
 
-        <AlgoChartControls timeRange={timeRange} onTimeRangeChange={setTimeRange} startDate={startDate} onStartDateChange={handleStartDateChange} endDate={endDate} onEndDateChange={handleEndDateChange} onManualStartDateChange={handleManualStartDateChange} onManualEndDateChange={handleManualEndDateChange} loading={loading} onFetchData={handleFetchData} isCustomDate={isCustomDate} setIsCustomDate={setIsCustomDate} />
+        <div className="w-full lg:w-auto">
+          <AlgoChartControls timeRange={timeRange} onTimeRangeChange={setTimeRange} startDate={startDate} onStartDateChange={handleStartDateChange} endDate={endDate} onEndDateChange={handleEndDateChange} onManualStartDateChange={handleManualStartDateChange} onManualEndDateChange={handleManualEndDateChange} loading={loading} onFetchData={handleFetchData} isCustomDate={isCustomDate} setIsCustomDate={setIsCustomDate} />
+        </div>
       </CardHeader>
 
-      <CardContent className="p-0">
-        <div className="grid grid-cols-12 gap-4">
-          {/* Chart - 8 columns */}
-          <div className="col-span-8">
+      <CardContent className="p-0 lg:p-0">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+          {/* Chart - Full width on mobile, 8 columns on xl+ */}
+          <div className="xl:col-span-8">
             <AlgoChartArea data={chartData} />
           </div>
 
-          {/* Table - 4 columns */}
-          <div className="col-span-4">
+          {/* Table - Full width on mobile, 4 columns on xl+ */}
+          <div className="xl:col-span-4">
             <AlgoTable data={tableData} loading={tableLoading} />
           </div>
         </div>

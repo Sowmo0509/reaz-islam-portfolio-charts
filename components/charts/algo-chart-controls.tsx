@@ -95,68 +95,71 @@ export function AlgoChartControls({ timeRange, onTimeRangeChange, startDate, onS
   };
 
   return (
-    <div className="flex items-center gap-3">
-      {/* SPY Select (disabled) */}
-      <Select disabled>
-        <SelectTrigger className="rounded-lg text-xs">
-          <SelectValue placeholder="SPY" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="SPY">SPY</SelectItem>
-        </SelectContent>
-      </Select>
+    <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full">
+      {/* Top row - SPY and Time Range */}
+      <div className="flex flex-row items-stretch sm:items-center gap-3 flex-1">
+        {/* SPY Select (disabled) */}
+        <Select disabled>
+          <SelectTrigger className="rounded-lg text-xs w-full sm:w-auto">
+            <SelectValue placeholder="SPY" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="SPY">SPY</SelectItem>
+          </SelectContent>
+        </Select>
 
-      {/* Time Range Select */}
-      <Select value={isCustomDate ? "custom" : timeRange} onValueChange={handleTimeRangeChange}>
-        <SelectTrigger className="rounded-lg text-xs">
-          <SelectValue placeholder="Select range" />
-        </SelectTrigger>
-        <SelectContent className="rounded-xl">
-          <SelectItem value="actual" className="rounded-lg">
-            Actual
-          </SelectItem>
-          <SelectItem value="1w" className="rounded-lg">
-            1 Week
-          </SelectItem>
-          <SelectItem value="1m" className="rounded-lg">
-            1 Month
-          </SelectItem>
-          <SelectItem value="3m" className="rounded-lg">
-            3 Months
-          </SelectItem>
-          <SelectItem value="6m" className="rounded-lg">
-            6 Months
-          </SelectItem>
-          <SelectItem value="ytd" className="rounded-lg">
-            YTD
-          </SelectItem>
-          <SelectItem value="1y" className="rounded-lg">
-            1 Year
-          </SelectItem>
-          <SelectItem value="2y" className="rounded-lg">
-            2 Years
-          </SelectItem>
-          <SelectItem value="5y" className="rounded-lg">
-            5 Years
-          </SelectItem>
-          <SelectItem value="custom" className="rounded-lg">
-            Custom Dates
-          </SelectItem>
-        </SelectContent>
-      </Select>
+        {/* Time Range Select */}
+        <Select value={isCustomDate ? "custom" : timeRange} onValueChange={handleTimeRangeChange}>
+          <SelectTrigger className="rounded-lg text-xs w-full sm:w-auto">
+            <SelectValue placeholder="Select range" />
+          </SelectTrigger>
+          <SelectContent className="rounded-xl">
+            <SelectItem value="actual" className="rounded-lg">
+              Actual
+            </SelectItem>
+            <SelectItem value="1w" className="rounded-lg">
+              1 Week
+            </SelectItem>
+            <SelectItem value="1m" className="rounded-lg">
+              1 Month
+            </SelectItem>
+            <SelectItem value="3m" className="rounded-lg">
+              3 Months
+            </SelectItem>
+            <SelectItem value="6m" className="rounded-lg">
+              6 Months
+            </SelectItem>
+            <SelectItem value="ytd" className="rounded-lg">
+              YTD
+            </SelectItem>
+            <SelectItem value="1y" className="rounded-lg">
+              1 Year
+            </SelectItem>
+            <SelectItem value="2y" className="rounded-lg">
+              2 Years
+            </SelectItem>
+            <SelectItem value="5y" className="rounded-lg">
+              5 Years
+            </SelectItem>
+            <SelectItem value="custom" className="rounded-lg">
+              Custom Dates
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       {/* OR text */}
-      <span className="text-white/70 text-sm">OR</span>
+      <span className="text-white/70 text-sm text-center lg:text-left">OR</span>
 
       {/* Date Pickers */}
-      <div className="flex items-center gap-2">
-        <input type="date" value={startDate?.toISOString().split("T")[0] || ""} onChange={(e) => onManualStartDateChange(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-[140px] text-xs" style={{ backgroundColor: "#25164f" }} />
-        <span className="text-white/70">to</span>
-        <input type="date" value={endDate?.toISOString().split("T")[0] || ""} onChange={(e) => onManualEndDateChange(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-[140px] text-xs" style={{ backgroundColor: "#25164f" }} />
+      <div className="flex flex-row items-center gap-2">
+        <input type="date" value={startDate?.toISOString().split("T")[0] || ""} onChange={(e) => onManualStartDateChange(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-full sm:w-[140px] text-xs" style={{ backgroundColor: "#25164f" }} />
+        <span className="text-white/70 text-xs sm:text-sm">to</span>
+        <input type="date" value={endDate?.toISOString().split("T")[0] || ""} onChange={(e) => onManualEndDateChange(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-full sm:w-[140px] text-xs" style={{ backgroundColor: "#25164f" }} />
       </div>
 
       {/* GO Button */}
-      <Button onClick={() => onFetchData()} disabled={loading} className="text-white px-4 py-2 rounded-lg disabled:opacity-50 cursor-pointer" style={{ backgroundColor: "#362465" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a1a4a")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#362465")}>
+      <Button onClick={() => onFetchData()} disabled={loading} className="text-white px-4 py-2 rounded-lg disabled:opacity-50 cursor-pointer w-full sm:w-auto" style={{ backgroundColor: "#362465" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a1a4a")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#362465")}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
       </Button>
     </div>
