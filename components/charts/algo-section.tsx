@@ -1,0 +1,90 @@
+"use client";
+
+import * as React from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlgoChartControls } from "./algo-chart-controls";
+import { AlgoChartArea } from "./algo-chart-area";
+import { AlgoTable } from "./algo-table";
+import { useAlgoData } from "./use-algo-data";
+import { useAlgoTableData } from "./use-algo-table-data";
+
+export const description = "An interactive area chart for algorithm performance";
+
+export function AlgoSection() {
+  const [timeRange, setTimeRange] = React.useState("actual");
+  const [startDate, setStartDate] = React.useState<Date | undefined>(new Date("2020-03-31"));
+  const [endDate, setEndDate] = React.useState<Date | undefined>(new Date("2025-09-12"));
+  const [isCustomDate, setIsCustomDate] = React.useState(false);
+
+  const { chartData, loading, fetchChartData } = useAlgoData({
+    startDate,
+    endDate,
+    timeRange,
+  });
+
+  const {
+    tableData,
+    loading: tableLoading,
+    fetchTableData,
+  } = useAlgoTableData({
+    startDate,
+    endDate,
+    timeRange,
+  });
+
+  const handleStartDateChange = React.useCallback((date: Date | undefined) => {
+    setStartDate(date);
+  }, []);
+
+  const handleEndDateChange = React.useCallback((date: Date | undefined) => {
+    setEndDate(date);
+  }, []);
+
+  const handleManualStartDateChange = React.useCallback((date: Date | undefined) => {
+    setStartDate(date);
+    setIsCustomDate(true);
+  }, []);
+
+  const handleManualEndDateChange = React.useCallback((date: Date | undefined) => {
+    setEndDate(date);
+    setIsCustomDate(true);
+  }, []);
+
+  const handleFetchData = React.useCallback(() => {
+    fetchChartData();
+    fetchTableData();
+  }, [fetchChartData, fetchTableData]);
+
+  // Fetch initial data on component mount
+  React.useEffect(() => {
+    fetchChartData();
+    fetchTableData();
+  }, []);
+
+  return (
+    <Card className="p-0 bg-transparent border-none">
+      <CardHeader className="flex items-center text-white gap-4 space-y-0 sm:flex-row p-0">
+        <div className="grid flex-1 gap-1">
+          <CardTitle className="text-2xl">Algo Main</CardTitle>
+          <CardDescription className="text-[#9568ff] font-bold">Thursday, September 11, 2025 at 1:11 PM EST</CardDescription>
+        </div>
+
+        <AlgoChartControls timeRange={timeRange} onTimeRangeChange={setTimeRange} startDate={startDate} onStartDateChange={handleStartDateChange} endDate={endDate} onEndDateChange={handleEndDateChange} onManualStartDateChange={handleManualStartDateChange} onManualEndDateChange={handleManualEndDateChange} loading={loading} onFetchData={handleFetchData} isCustomDate={isCustomDate} setIsCustomDate={setIsCustomDate} />
+      </CardHeader>
+
+      <CardContent className="p-0">
+        <div className="grid grid-cols-12 gap-4">
+          {/* Chart - 8 columns */}
+          <div className="col-span-8">
+            <AlgoChartArea data={chartData} />
+          </div>
+
+          {/* Table - 4 columns */}
+          <div className="col-span-4">
+            <AlgoTable data={tableData} loading={tableLoading} />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
