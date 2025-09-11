@@ -8,7 +8,10 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get("startDate") || "2020-03-31";
     const endDate = searchParams.get("endDate") || "2025-09-12";
 
-    const response = await axios.get(`https://zseniainv.com:8883/analytics/returnChart/am/spy/--/${startDate}/${endDate}`, {
+    // Get today's date in YYYY-MM-DD format
+    const today = new Date().toISOString().split("T")[0];
+
+    const response = await axios.get(`https://zseniainv.com:8883/analytics/returnChart/am/spy/--/${startDate}/${today}`, {
       headers: {
         Authorization: "Basic cm9ib2FkdjoyMDlicm9hZHdheSQjQA==",
       },
@@ -17,14 +20,7 @@ export async function GET(request: NextRequest) {
       }),
     });
 
-    // Transform API data to chart format
-    const transformedData = response.data.data.map((item: any) => ({
-      date: new Date(item.dt).toISOString().split("T")[0],
-      benchmark: parseFloat(item.bm) || 0,
-      actual: parseFloat(item.ac) || 0,
-    }));
-
-    return NextResponse.json({ data: transformedData });
+    return NextResponse.json(response.data);
   } catch (error) {
     console.error("Error fetching chart data:", error);
     return NextResponse.json({ error: "Failed to fetch chart data" }, { status: 500 });

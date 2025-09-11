@@ -5,7 +5,7 @@ import "./globals.css";
 import { Navbar02 } from "@/components/ui/shadcn-io/navbar-02/navbar";
 
 const poppins = Poppins({
-  variable: "--font-poppins",
+  variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} antialiased bg-purple-bg`}>
+      <body className={`${poppins.variable} font-sans antialiased bg-purple-bg`}>
         <Navbar02 />x{children}
       </body>
     </html>

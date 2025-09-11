@@ -3,11 +3,16 @@
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import axios from "axios";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Loader2, Play } from "lucide-react";
 
 export const description = "An interactive area chart";
 
@@ -21,11 +26,11 @@ interface ChartDataPoint {
 const chartConfig = {
   benchmark: {
     label: "Benchmark",
-    color: "var(--chart-1)",
+    color: "#9568ff",
   },
   actual: {
     label: "Actual",
-    color: "var(--chart-2)",
+    color: "#00e396",
   },
 } satisfies ChartConfig;
 
@@ -45,7 +50,14 @@ export function ChartAreaInteractive() {
 
       const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}`);
 
-      setChartData(response.data.data);
+      // Transform API data to chart format
+      const transformedData = response.data.data.map((item: any) => ({
+        date: new Date(item.dt).toISOString().split("T")[0],
+        benchmark: parseFloat(item.bm) || 0,
+        actual: parseFloat(item.ac) || 0,
+      }));
+
+      setChartData(transformedData);
     } catch (error) {
       console.error("Error fetching chart data:", error);
     } finally {
@@ -58,39 +70,50 @@ export function ChartAreaInteractive() {
     setTimeRange(value);
 
     if (value === "actual") {
-      // Keep current dates for actual
+      // Set default range for actual data
+      const localDate = dayjs().format("YYYY-MM-DD");
+      const today = dayjs.utc(localDate);
+      const defaultStartDate = dayjs.utc("2020-03-31").toDate();
+      const defaultEndDate = today.toDate();
+
+      setStartDate(defaultStartDate);
+      setEndDate(defaultEndDate);
       return;
     }
 
-    const today = new Date();
-    const newEndDate = new Date(today);
-    let newStartDate = new Date(today);
+    // Use Day.js for clean date calculations - determine "today" based on local date
+    const localDate = dayjs().format("YYYY-MM-DD"); // Get local date string (2025-09-12)
+    const today = dayjs.utc(localDate); // Create UTC date from local date string
+    const newEndDate = today.toDate();
+    let newStartDate: Date;
 
     switch (value) {
       case "1w":
-        newStartDate.setDate(today.getDate() - 7);
+        newStartDate = today.subtract(1, "week").toDate();
         break;
       case "1m":
-        newStartDate.setMonth(today.getMonth() - 1);
+        newStartDate = today.subtract(1, "month").toDate();
         break;
       case "3m":
-        newStartDate.setMonth(today.getMonth() - 3);
+        newStartDate = today.subtract(3, "months").toDate();
         break;
       case "6m":
-        newStartDate.setMonth(today.getMonth() - 6);
+        newStartDate = today.subtract(6, "months").toDate();
         break;
       case "ytd":
-        newStartDate = new Date(today.getFullYear(), 0, 1);
+        newStartDate = today.startOf("year").toDate();
         break;
       case "1y":
-        newStartDate.setFullYear(today.getFullYear() - 1);
+        newStartDate = today.subtract(1, "year").toDate();
         break;
       case "2y":
-        newStartDate.setFullYear(today.getFullYear() - 2);
+        newStartDate = today.subtract(2, "years").toDate();
         break;
       case "5y":
-        newStartDate.setFullYear(today.getFullYear() - 5);
+        newStartDate = today.subtract(5, "years").toDate();
         break;
+      default:
+        newStartDate = today.toDate();
     }
 
     setStartDate(newStartDate);
@@ -104,6 +127,25 @@ export function ChartAreaInteractive() {
 
   const filteredData = chartData;
 
+  // Calculate dynamic Y-axis domain with 10% buffer
+  const getYAxisDomain = () => {
+    if (filteredData.length === 0) return ["auto", "auto"];
+
+    const allValues = filteredData.flatMap((item) => [item.benchmark, item.actual]).filter((val) => !isNaN(val));
+    if (allValues.length === 0) return ["auto", "auto"];
+
+    const minValue = Math.min(...allValues);
+    const maxValue = Math.max(...allValues);
+
+    // Add 10% buffer above and below
+    const range = maxValue - minValue;
+    const buffer = Math.max(range * 0.1, 0.1); // At least 0.1 buffer
+
+    return [minValue - buffer, maxValue + buffer];
+  };
+
+  const yAxisDomain = getYAxisDomain();
+
   return (
     <Card className="p-0 bg-transparent border-none">
       <CardHeader className="flex items-center text-white gap-4 space-y-0 sm:flex-row p-0">
@@ -115,7 +157,7 @@ export function ChartAreaInteractive() {
         <div className="flex items-center gap-3">
           {/* SPY Select (disabled) */}
           <Select disabled>
-            <SelectTrigger className="rounded-lg">
+            <SelectTrigger className="rounded-lg text-xs">
               <SelectValue placeholder="SPY" />
             </SelectTrigger>
             <SelectContent>
@@ -125,7 +167,7 @@ export function ChartAreaInteractive() {
 
           {/* Time Range Select */}
           <Select value={timeRange} onValueChange={handleTimeRangeChange}>
-            <SelectTrigger className="rounded-lg">
+            <SelectTrigger className="rounded-lg text-xs">
               <SelectValue placeholder="Select range" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -164,30 +206,20 @@ export function ChartAreaInteractive() {
 
           {/* Date Pickers */}
           <div className="flex items-center gap-2">
-            <input type="date" value={startDate?.toISOString().split("T")[0] || ""} onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-[140px]" style={{ backgroundColor: "#25164f" }} />
+            <input type="date" value={startDate?.toISOString().split("T")[0] || ""} onChange={(e) => setStartDate(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-[140px] text-xs" style={{ backgroundColor: "#25164f" }} />
             <span className="text-white/70">to</span>
-            <input type="date" value={endDate?.toISOString().split("T")[0] || ""} onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-[140px]" style={{ backgroundColor: "#25164f" }} />
+            <input type="date" value={endDate?.toISOString().split("T")[0] || ""} onChange={(e) => setEndDate(e.target.value ? new Date(e.target.value) : undefined)} className="rounded-lg border border-gray-600 text-white px-3 py-2 w-[140px] text-xs" style={{ backgroundColor: "#25164f" }} />
           </div>
 
           {/* GO Button */}
-          <Button onClick={fetchChartData} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50">
-            {loading ? "Loading..." : "GO"}
+          <Button onClick={fetchChartData} disabled={loading} className="text-white px-4 py-2 rounded-lg disabled:opacity-50 cursor-pointer" style={{ backgroundColor: "#362465" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a1a4a")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#362465")}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
           </Button>
         </div>
       </CardHeader>
       <CardContent className="p-0">
         <ChartContainer config={chartConfig} className="aspect-auto h-[320px] w-full">
-          <AreaChart data={filteredData}>
-            <defs>
-              <linearGradient id="fillBenchmark" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-benchmark)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-benchmark)" stopOpacity={0.1} />
-              </linearGradient>
-              <linearGradient id="fillActual" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-actual)" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="var(--color-actual)" stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
+          <AreaChart data={filteredData} margin={{ left: 20, right: 20, top: 20, bottom: 20 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="date"
@@ -202,7 +234,7 @@ export function ChartAreaInteractive() {
                 });
               }}
             />
-            <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => value.toLocaleString()} />
+            <YAxis domain={yAxisDomain} tickLine={false} axisLine={false} width={30} tickFormatter={(value) => value.toLocaleString()} />
             <ChartTooltip
               cursor={false}
               content={
@@ -217,8 +249,8 @@ export function ChartAreaInteractive() {
                 />
               }
             />
-            <Area dataKey="actual" type="natural" fill="url(#fillActual)" stroke="var(--color-actual)" stackId="a" />
-            <Area dataKey="benchmark" type="natural" fill="url(#fillBenchmark)" stroke="var(--color-benchmark)" stackId="a" />
+            <Area dataKey="actual" type="natural" fill="#00e396" fillOpacity={0.3} stroke="#00e396" stackId="a" />
+            <Area dataKey="benchmark" type="natural" fill="#9568ff" fillOpacity={0.3} stroke="#9568ff" stackId="a" />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>
