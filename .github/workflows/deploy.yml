@@ -1,0 +1,39 @@
+name: Deploy Next.js App with PM2
+
+on:
+  push:
+    branches:
+      - main # Deploy only when pushing to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          password: ${{ secrets.VPS_PASS }}
+          script: |
+            # Go to project folder or clone if missing
+            if [ ! -d "/var/www/my-next-app" ]; then
+              git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git /var/www/my-next-app
+            fi
+
+            cd /var/www/my-next-app
+
+            # Get latest code
+            git reset --hard
+            git pull origin main
+
+            # Install deps & build
+            npm install --production=false
+            npm run build
+
+            # Restart with PM2 (or start if not running yet)
+            pm2 restart my-next-app || pm2 start npm --name "my-next-app" -- start
