@@ -7,6 +7,7 @@ import { AlgoChartArea } from "./algo-chart-area";
 import { AlgoTable } from "./algo-table";
 import { useAlgoData } from "./use-algo-data";
 import { useAlgoTableData } from "./use-algo-table-data";
+import dayjs from "dayjs";
 
 export const description = "An interactive area chart for algorithm performance";
 
@@ -16,7 +17,7 @@ export function AlgoSection() {
   const [endDate, setEndDate] = React.useState<Date | undefined>(new Date("2025-09-12"));
   const [isCustomDate, setIsCustomDate] = React.useState(false);
 
-  const { chartData, loading, fetchChartData } = useAlgoData({
+  const { chartData, loading, fetchChartData, updateTime } = useAlgoData({
     startDate,
     endDate,
     timeRange,
@@ -64,12 +65,18 @@ export function AlgoSection() {
     fetchTableData();
   }, []);
 
+  // Format update time from timestamp using Day.js
+  const formatUpdateTime = (timestamp: string | null) => {
+    if (!timestamp) return "Loading...";
+    return dayjs(parseInt(timestamp)).format("dddd, MMMM D, YYYY [at] h:mm A Z");
+  };
+
   return (
     <Card className="p-0 bg-transparent border-none">
       <CardHeader className="flex items-center text-white gap-4 space-y-0 sm:flex-row p-0">
         <div className="grid flex-1 gap-1">
           <CardTitle className="text-2xl">Algo Main</CardTitle>
-          <CardDescription className="text-[#9568ff] font-bold">Thursday, September 11, 2025 at 1:11 PM EST</CardDescription>
+          <CardDescription className="text-[#9568ff] font-bold">{formatUpdateTime(updateTime)}</CardDescription>
         </div>
 
         <AlgoChartControls timeRange={timeRange} onTimeRangeChange={setTimeRange} startDate={startDate} onStartDateChange={handleStartDateChange} endDate={endDate} onEndDateChange={handleEndDateChange} onManualStartDateChange={handleManualStartDateChange} onManualEndDateChange={handleManualEndDateChange} loading={loading} onFetchData={handleFetchData} isCustomDate={isCustomDate} setIsCustomDate={setIsCustomDate} />

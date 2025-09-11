@@ -12,6 +12,7 @@ interface UseAlgoDataProps {
 export function useAlgoData({ startDate, endDate, timeRange }: UseAlgoDataProps) {
   const [chartData, setChartData] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [updateTime, setUpdateTime] = React.useState<string | null>(null);
 
   // Fetch data from API
   const fetchChartData = React.useCallback(
@@ -27,6 +28,11 @@ export function useAlgoData({ startDate, endDate, timeRange }: UseAlgoDataProps)
         const timeRangeParam = effectiveTimeRange === "actual" ? "--" : effectiveTimeRange === "custom" ? "---" : effectiveTimeRange;
         console.log("API Call Debug:", { startDateStr, endDateStr, timeRange, effectiveTimeRange, timeRangeParam, calculatedDates: { selectedStartDate, selectedEndDate } });
         const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${timeRangeParam}`);
+
+        // Set update time from API response
+        if (response.data.updateTime) {
+          setUpdateTime(response.data.updateTime);
+        }
 
         // Transform API data to chart format
         const transformedData = response.data.data.map((item: any) => ({
@@ -51,5 +57,6 @@ export function useAlgoData({ startDate, endDate, timeRange }: UseAlgoDataProps)
     chartData,
     loading,
     fetchChartData,
+    updateTime,
   };
 }

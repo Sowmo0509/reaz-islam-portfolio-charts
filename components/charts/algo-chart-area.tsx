@@ -73,7 +73,7 @@ export function AlgoChartArea({ data }: AlgoChartAreaProps) {
         />
         <Area dataKey="actual" type="natural" fill={chartConfig.actual.color} fillOpacity={0.3} stroke={chartConfig.actual.color} stackId="a" />
         <Area dataKey="benchmark" type="natural" fill={chartConfig.benchmark.color} fillOpacity={0.3} stroke={chartConfig.benchmark.color} stackId="a" />
-        <ChartLegend content={<ChartLegendContent />} />
+        <ChartLegend content={<ChartLegendContent className="text-white" />} />
       </AreaChart>
     </ChartContainer>
   );
