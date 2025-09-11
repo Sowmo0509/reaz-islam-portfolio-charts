@@ -156,7 +156,7 @@ export function AlgoChartControls({ timeRange, onTimeRangeChange, startDate, onS
       </div>
 
       {/* GO Button */}
-      <Button onClick={onFetchData} disabled={loading} className="text-white px-4 py-2 rounded-lg disabled:opacity-50 cursor-pointer" style={{ backgroundColor: "#362465" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a1a4a")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#362465")}>
+      <Button onClick={() => onFetchData()} disabled={loading} className="text-white px-4 py-2 rounded-lg disabled:opacity-50 cursor-pointer" style={{ backgroundColor: "#362465" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a1a4a")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#362465")}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
       </Button>
     </div>
