@@ -48,7 +48,7 @@ export function ChartAreaInteractive() {
       const startDateStr = startDate?.toISOString().split("T")[0] || "2020-03-31";
       const endDateStr = endDate?.toISOString().split("T")[0] || "2025-09-12";
 
-      const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${timeRange}`);
+      const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${timeRange === "actual" ? "--" : timeRange}`);
 
       // Transform API data to chart format
       const transformedData = response.data.data.map((item: any) => ({
@@ -127,6 +127,25 @@ export function ChartAreaInteractive() {
 
   const filteredData = chartData;
 
+  // Calculate precise Y-axis domain to match actual data range
+  const getYAxisDomain = () => {
+    if (filteredData.length === 0) return ["auto", "auto"];
+
+    const allValues = filteredData.flatMap((item) => [item.benchmark, item.actual]).filter((val) => !isNaN(val));
+    if (allValues.length === 0) return ["auto", "auto"];
+
+    const minValue = Math.min(...allValues);
+    const maxValue = Math.max(...allValues);
+
+    // Add 35% buffer above and below
+    const range = maxValue - minValue;
+    const buffer = range * 0.35;
+
+    return [minValue - buffer, maxValue + buffer];
+  };
+
+  const yAxisDomain = getYAxisDomain();
+
   return (
     <Card className="p-0 bg-transparent border-none">
       <CardHeader className="flex items-center text-white gap-4 space-y-0 sm:flex-row p-0">
@@ -199,7 +218,7 @@ export function ChartAreaInteractive() {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <ChartContainer config={chartConfig} className="aspect-auto h-[320px] w-full">
+        <ChartContainer config={chartConfig} className="aspect-auto h-96 w-full">
           <AreaChart data={filteredData} margin={{ left: 20, right: 20, top: 20, bottom: 20 }}>
             <CartesianGrid vertical={false} />
             <XAxis
@@ -215,7 +234,7 @@ export function ChartAreaInteractive() {
                 });
               }}
             />
-            <YAxis tickLine={false} axisLine={false} width={30} tickFormatter={(value) => value.toLocaleString()} />
+            <YAxis domain={yAxisDomain} tickLine={false} axisLine={false} width={30} tickFormatter={(value) => value.toLocaleString()} />
             <ChartTooltip
               cursor={false}
               content={
