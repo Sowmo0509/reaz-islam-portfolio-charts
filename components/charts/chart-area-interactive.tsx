@@ -25,12 +25,12 @@ interface ChartDataPoint {
 
 const chartConfig = {
   benchmark: {
-    label: "Benchmark",
-    color: "#9568ff",
+    label: "SPY",
+    color: "#00e396",
   },
   actual: {
     label: "Actual",
-    color: "#00e396",
+    color: "#9568ff",
   },
 } satisfies ChartConfig;
 
@@ -48,7 +48,7 @@ export function ChartAreaInteractive() {
       const startDateStr = startDate?.toISOString().split("T")[0] || "2020-03-31";
       const endDateStr = endDate?.toISOString().split("T")[0] || "2025-09-12";
 
-      const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}`);
+      const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${timeRange}`);
 
       // Transform API data to chart format
       const transformedData = response.data.data.map((item: any) => ({
@@ -126,25 +126,6 @@ export function ChartAreaInteractive() {
   }, [fetchChartData]);
 
   const filteredData = chartData;
-
-  // Calculate dynamic Y-axis domain with 10% buffer
-  const getYAxisDomain = () => {
-    if (filteredData.length === 0) return ["auto", "auto"];
-
-    const allValues = filteredData.flatMap((item) => [item.benchmark, item.actual]).filter((val) => !isNaN(val));
-    if (allValues.length === 0) return ["auto", "auto"];
-
-    const minValue = Math.min(...allValues);
-    const maxValue = Math.max(...allValues);
-
-    // Add 10% buffer above and below
-    const range = maxValue - minValue;
-    const buffer = Math.max(range * 0.1, 0.1); // At least 0.1 buffer
-
-    return [minValue - buffer, maxValue + buffer];
-  };
-
-  const yAxisDomain = getYAxisDomain();
 
   return (
     <Card className="p-0 bg-transparent border-none">
@@ -234,7 +215,7 @@ export function ChartAreaInteractive() {
                 });
               }}
             />
-            <YAxis domain={yAxisDomain} tickLine={false} axisLine={false} width={30} tickFormatter={(value) => value.toLocaleString()} />
+            <YAxis tickLine={false} axisLine={false} width={30} tickFormatter={(value) => value.toLocaleString()} />
             <ChartTooltip
               cursor={false}
               content={
@@ -249,8 +230,8 @@ export function ChartAreaInteractive() {
                 />
               }
             />
-            <Area dataKey="actual" type="natural" fill="#00e396" fillOpacity={0.3} stroke="#00e396" stackId="a" />
-            <Area dataKey="benchmark" type="natural" fill="#9568ff" fillOpacity={0.3} stroke="#9568ff" stackId="a" />
+            <Area dataKey="actual" type="natural" fill={chartConfig.actual.color} fillOpacity={0.3} stroke={chartConfig.actual.color} stackId="a" />
+            <Area dataKey="benchmark" type="natural" fill={chartConfig.benchmark.color} fillOpacity={0.3} stroke={chartConfig.benchmark.color} stackId="a" />
             <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>

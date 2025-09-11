@@ -7,11 +7,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get("startDate") || "2020-03-31";
     const endDate = searchParams.get("endDate") || "2025-09-12";
+    const timeRange = searchParams.get("timeRange") || "--";
 
     // Get today's date in YYYY-MM-DD format
     const today = new Date().toISOString().split("T")[0];
 
-    const response = await axios.get(`https://zseniainv.com:8883/analytics/returnChart/am/spy/--/${startDate}/${today}`, {
+    const response = await axios.get(`https://zseniainv.com:8883/analytics/returnChart/am/spy/${timeRange}/${startDate}/${endDate}`, {
       headers: {
         Authorization: "Basic cm9ib2FkdjoyMDlicm9hZHdheSQjQA==",
       },
