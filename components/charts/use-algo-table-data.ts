@@ -16,11 +16,15 @@ export function useAlgoTableData({ startDate, endDate, timeRange }: UseAlgoTable
   const fetchTableData = React.useCallback(async (start?: Date, end?: Date, range?: string) => {
     setLoading(true);
     try {
-      const startDateStr = start?.toISOString().split("T")[0] || "2020-03-31";
-      const endDateStr = end?.toISOString().split("T")[0] || "2025-09-12";
-      const timeRangeParam = range || "actual";
+      const effectiveStartDate = start || startDate;
+      const effectiveEndDate = end || endDate;
+      const startDateStr = effectiveStartDate?.toISOString().split("T")[0] || "2020-03-31";
+      const endDateStr = effectiveEndDate?.toISOString().split("T")[0] || "2025-09-12";
+      const timeRangeParam = range || timeRange || "actual";
 
-      const response = await axios.get(`/api/data/charts/algo-table?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${timeRangeParam === "actual" ? "--" : timeRangeParam === "custom" ? "---" : timeRangeParam}`);
+      const finalTimeRangeParam = timeRangeParam === "actual" ? "--" : timeRangeParam === "custom" ? "---" : timeRangeParam;
+      console.log("Table API Call Debug:", { startDateStr, endDateStr, timeRangeParam, finalTimeRangeParam });
+      const response = await axios.get(`/api/data/charts/algo-table?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${finalTimeRangeParam}`);
       setTableData(response.data);
     } catch (error) {
       console.error("Error fetching table data:", error);

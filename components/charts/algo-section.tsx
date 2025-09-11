@@ -50,10 +50,13 @@ export function AlgoSection() {
     setIsCustomDate(true);
   }, []);
 
-  const handleFetchData = React.useCallback(() => {
-    fetchChartData();
-    fetchTableData();
-  }, [fetchChartData, fetchTableData]);
+  const handleFetchData = React.useCallback(
+    (selectedTimeRange?: string, selectedStartDate?: Date, selectedEndDate?: Date) => {
+      fetchChartData(selectedTimeRange, selectedStartDate, selectedEndDate);
+      fetchTableData(selectedStartDate || startDate, selectedEndDate || endDate, selectedTimeRange || timeRange);
+    },
+    [fetchChartData, fetchTableData, startDate, endDate, timeRange]
+  );
 
   // Fetch initial data on component mount
   React.useEffect(() => {

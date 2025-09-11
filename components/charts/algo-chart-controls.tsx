@@ -19,7 +19,7 @@ interface AlgoChartControlsProps {
   onManualStartDateChange: (date: Date | undefined) => void;
   onManualEndDateChange: (date: Date | undefined) => void;
   loading: boolean;
-  onFetchData: () => void;
+  onFetchData: (selectedTimeRange?: string, selectedStartDate?: Date, selectedEndDate?: Date) => void;
   isCustomDate: boolean;
   setIsCustomDate: (value: boolean) => void;
 }
@@ -46,6 +46,9 @@ export function AlgoChartControls({ timeRange, onTimeRangeChange, startDate, onS
 
       onStartDateChange(defaultStartDate);
       onEndDateChange(defaultEndDate);
+
+      // Auto-call API for predefined time ranges with calculated dates
+      setTimeout(() => onFetchData(value, defaultStartDate, defaultEndDate), 100);
       return;
     }
 
@@ -86,6 +89,9 @@ export function AlgoChartControls({ timeRange, onTimeRangeChange, startDate, onS
 
     onStartDateChange(newStartDate);
     onEndDateChange(newEndDate);
+
+    // Auto-call API for predefined time ranges with calculated dates
+    setTimeout(() => onFetchData(value, newStartDate, newEndDate), 100);
   };
 
   return (

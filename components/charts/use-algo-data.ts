@@ -14,28 +14,36 @@ export function useAlgoData({ startDate, endDate, timeRange }: UseAlgoDataProps)
   const [loading, setLoading] = React.useState(false);
 
   // Fetch data from API
-  const fetchChartData = React.useCallback(async () => {
-    try {
-      setLoading(true);
-      const startDateStr = startDate?.toISOString().split("T")[0] || "2020-03-31";
-      const endDateStr = endDate?.toISOString().split("T")[0] || "2025-09-12";
+  const fetchChartData = React.useCallback(
+    async (selectedTimeRange?: string, selectedStartDate?: Date, selectedEndDate?: Date) => {
+      try {
+        setLoading(true);
+        const effectiveStartDate = selectedStartDate || startDate;
+        const effectiveEndDate = selectedEndDate || endDate;
+        const startDateStr = effectiveStartDate?.toISOString().split("T")[0] || "2020-03-31";
+        const endDateStr = effectiveEndDate?.toISOString().split("T")[0] || "2025-09-12";
 
-      const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${timeRange === "actual" ? "--" : timeRange === "custom" ? "---" : timeRange}`);
+        const effectiveTimeRange = selectedTimeRange || timeRange;
+        const timeRangeParam = effectiveTimeRange === "actual" ? "--" : effectiveTimeRange === "custom" ? "---" : effectiveTimeRange;
+        console.log("API Call Debug:", { startDateStr, endDateStr, timeRange, effectiveTimeRange, timeRangeParam, calculatedDates: { selectedStartDate, selectedEndDate } });
+        const response = await axios.get(`/api/data/charts/algo-main?startDate=${startDateStr}&endDate=${endDateStr}&timeRange=${timeRangeParam}`);
 
-      // Transform API data to chart format
-      const transformedData = response.data.data.map((item: any) => ({
-        date: new Date(item.dt).toISOString().split("T")[0],
-        benchmark: parseFloat(item.bm) || 0,
-        actual: parseFloat(item.ac) || 0,
-      }));
+        // Transform API data to chart format
+        const transformedData = response.data.data.map((item: any) => ({
+          date: new Date(item.dt).toISOString().split("T")[0],
+          benchmark: parseFloat(item.bm) || 0,
+          actual: parseFloat(item.ac) || 0,
+        }));
 
-      setChartData(transformedData);
-    } catch (error) {
-      console.error("Error fetching chart data:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [startDate, endDate, timeRange]);
+        setChartData(transformedData);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [startDate, endDate, timeRange]
+  );
 
   // Remove automatic fetching - only fetch when explicitly called
 
