@@ -1,39 +1,50 @@
 name: Deploy Next.js App with PM2
 
+# Trigger deployment on push to main branch
 on:
   push:
     branches:
-      - main # Deploy only when pushing to main
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repo
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to VPS via SSH
+      # Step 2: Set up SSH agent with private key
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Step 3: Deploy to VPS via SSH
+      - name: Deploy to VPS
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASS }}
           script: |
-            # Go to project folder or clone if missing
-            if [ ! -d "/var/www/my-next-app" ]; then
-              git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git /var/www/my-next-app
+            # Go to project folder, clone if it doesn't exist
+            if [ ! -d "/var/www/reaz-islam-portfolio-charts" ]; then
+              git clone git@github.com:Sowmo0509/reaz-islam-portfolio-charts.git /var/www/reaz-islam-portfolio-charts
             fi
 
-            cd /var/www/my-next-app
+            cd /var/www/reaz-islam-portfolio-charts
 
-            # Get latest code
+            # Pull the latest changes from main
             git reset --hard
             git pull origin main
 
-            # Install deps & build
-            npm install --production=false
+            # Install dependencies & build Next.js
+            npm install
             npm run build
 
-            # Restart with PM2 (or start if not running yet)
-            pm2 restart my-next-app || pm2 start npm --name "my-next-app" -- start
+            # Restart PM2 app (or start if first time)
+            pm2 restart reaz-islam-portfolio-charts || pm2 start npm --name "reaz-islam-portfolio-charts" -- start
+
+            # Save PM2 process list for server reboot
+            pm2 save
