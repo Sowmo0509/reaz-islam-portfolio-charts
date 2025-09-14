@@ -25,6 +25,15 @@ interface AlgoChartControlsProps {
 }
 
 export function AlgoChartControls({ timeRange, onTimeRangeChange, startDate, onStartDateChange, endDate, onEndDateChange, onManualStartDateChange, onManualEndDateChange, loading, onFetchData, isCustomDate, setIsCustomDate }: AlgoChartControlsProps) {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+  
   // Handle time range selection
   const handleTimeRangeChange = (value: string) => {
     onTimeRangeChange(value);
@@ -160,8 +169,9 @@ export function AlgoChartControls({ timeRange, onTimeRangeChange, startDate, onS
 
       {/* GO Button */}
       <Button onClick={() => onFetchData()} disabled={loading} className="text-white px-4 py-2 rounded-lg disabled:opacity-50 cursor-pointer w-full sm:w-auto" style={{ backgroundColor: "#362465" }} onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#2a1a4a")} onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#362465")}>
-        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isMobile ? "Refresh" : <Play className="h-4 w-4" />)}
       </Button>
     </div>
   );
 }
+

@@ -112,7 +112,7 @@ export function AlgoChartArea({ data }: AlgoChartAreaProps) {
             colors: "#ffffff",
             fontSize: isMobile ? "10px" : "12px",
           },
-          format: isMobile ? "yyyy-MM-dd" : "dd MMM yyyy",
+          format: isMobile ? "MM/yy" : "MM/yy",
         },
         axisBorder: {
           show: false,
