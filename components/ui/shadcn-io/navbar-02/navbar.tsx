@@ -53,7 +53,7 @@ export const Navbar02 = React.forwardRef<HTMLElement, Navbar02Props>(({ classNam
           {/* Logo */}
           <button onClick={(e) => e.preventDefault()} className="flex items-center space-x-2 text-white hover:text-white/90 transition-colors cursor-pointer">
             <div className="text-2xl">{logo}</div>
-            <span className="hidden font-bold text-xl sm:inline-block">Reaz Islam</span>
+            <span className="font-bold text-xl sm:inline-block">Reaz Islam</span>
           </button>
         </div>
 

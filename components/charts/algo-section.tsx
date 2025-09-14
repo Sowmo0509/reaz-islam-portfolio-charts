@@ -68,14 +68,14 @@ export function AlgoSection() {
   // Format update time from timestamp using Day.js
   const formatUpdateTime = (timestamp: string | null) => {
     if (!timestamp) return "Loading...";
-    return dayjs(parseInt(timestamp)).format("dddd, MMMM D, YYYY [at] h:mm A Z");
+    return dayjs(parseInt(timestamp)).format("MMMM D, YYYY [at] h:mm A Z");
   };
 
   return (
     <Card className="p-0 bg-transparent border-none">
       <CardHeader className="flex flex-col lg:flex-row items-start lg:items-center text-white gap-4 space-y-0 p-0 lg:p-0">
         <div className="grid flex-1 gap-1 w-full lg:w-auto">
-          <CardTitle className="text-xl lg:text-2xl">Algo Main</CardTitle>
+          <CardTitle className="text-xl lg:text-2xl">Multi Strategy Investment Track Record</CardTitle>
           <CardDescription className="text-[#9568ff] font-bold text-sm lg:text-base">{formatUpdateTime(updateTime)}</CardDescription>
         </div>
 

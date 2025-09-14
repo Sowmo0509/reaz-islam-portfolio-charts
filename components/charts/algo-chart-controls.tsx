@@ -115,7 +115,7 @@ export function AlgoChartControls({ timeRange, onTimeRangeChange, startDate, onS
           </SelectTrigger>
           <SelectContent className="rounded-xl">
             <SelectItem value="actual" className="rounded-lg">
-              Actual
+              Actual Dates
             </SelectItem>
             <SelectItem value="1w" className="rounded-lg">
               1 Week
