@@ -6,14 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface AlgoTableProps {
   data: any[];
   loading?: boolean;
+  height?: string;
 }
 
-export function AlgoTable({ data, loading = false }: AlgoTableProps) {
+export function AlgoTable({ data, loading = false, height = "max-h-[19rem]" }: AlgoTableProps) {
   if (loading) {
     return (
       <Card className="bg-transparent border-[#9568ff] py-2 rounded-md">
         <CardContent>
-          <div className="flex items-center justify-center h-[19rem]">
+          <div className={`flex items-center justify-center ${height}`}>
             <div className="text-white/70">Loading metrics...</div>
           </div>
         </CardContent>
@@ -24,7 +25,7 @@ export function AlgoTable({ data, loading = false }: AlgoTableProps) {
   return (
     <Card className="bg-transparent border-[#9568ff] py-2 rounded-md">
       <CardContent className="px-2">
-        <div className="overflow-auto max-h-[19rem] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#362465] hover:scrollbar-thumb-[#2a1a4a]">
+        <div className={`overflow-auto ${height} scrollbar-thin scrollbar-track-transparent scrollbar-thumb-[#362465] hover:scrollbar-thumb-[#2a1a4a]`}>
           <table className="w-full text-xs sm:text-sm font-medium min-w-[280px]">
             <thead>
               <tr className="border-b border-[#fff]/10 uppercase text-[#6bc5ff] font-bold">

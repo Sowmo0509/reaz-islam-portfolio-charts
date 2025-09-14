@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import ApexCharts from "react-apexcharts";
 
 // Dynamically import ApexCharts to avoid SSR issues
 const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
 
 interface AlgoChartAreaProps {
   data: any[];
+  height?: string;
 }
 
 const chartConfig = {
@@ -22,7 +22,7 @@ const chartConfig = {
   },
 };
 
-export function AlgoChartArea({ data }: AlgoChartAreaProps) {
+export function AlgoChartArea({ data, height = "h-80 sm:h-80 lg:h-96" }: AlgoChartAreaProps) {
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
@@ -156,7 +156,7 @@ export function AlgoChartArea({ data }: AlgoChartAreaProps) {
   };
 
   return (
-    <div className="w-full h-80 sm:h-80 lg:h-96">
+    <div className={`w-full ${height}`}>
       <Chart options={chartData.options} series={chartData.series} type="area" height="100%" />
     </div>
   );
