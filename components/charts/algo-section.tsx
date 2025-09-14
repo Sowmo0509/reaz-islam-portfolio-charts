@@ -11,7 +11,12 @@ import dayjs from "dayjs";
 
 export const description = "An interactive area chart for algorithm performance";
 
-export function AlgoSection() {
+interface AlgoSectionProps {
+  chartHeight?: string;
+  tableHeight?: string;
+}
+
+export function AlgoSection({ chartHeight = "h-80 sm:h-80 lg:h-96", tableHeight = "max-h-[19rem]" }: AlgoSectionProps) {
   const [timeRange, setTimeRange] = React.useState("actual");
   const [startDate, setStartDate] = React.useState<Date | undefined>(new Date("2020-03-31"));
   const [endDate, setEndDate] = React.useState<Date | undefined>(new Date("2025-09-12"));
@@ -63,7 +68,7 @@ export function AlgoSection() {
   React.useEffect(() => {
     fetchChartData();
     fetchTableData();
-  }, []);
+  }, [fetchChartData, fetchTableData]);
 
   // Format update time from timestamp using Day.js
   const formatUpdateTime = (timestamp: string | null) => {
@@ -88,12 +93,12 @@ export function AlgoSection() {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
           {/* Chart - Full width on mobile, 8 columns on xl+ */}
           <div className="xl:col-span-8">
-            <AlgoChartArea data={chartData} />
+            <AlgoChartArea data={chartData} height={chartHeight} />
           </div>
 
           {/* Table - Full width on mobile, 4 columns on xl+ */}
           <div className="xl:col-span-4">
-            <AlgoTable data={tableData} loading={tableLoading} />
+            <AlgoTable data={tableData} loading={tableLoading} height={tableHeight} />
           </div>
         </div>
       </CardContent>
